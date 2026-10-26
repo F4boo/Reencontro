@@ -1,0 +1,27 @@
+
+# Arquivos do Android Studio
+*.iml
+.idea/
+.DS_Store
+
+# Gradle e builds
+.gradle/
+build/
+**/build/
+
+# Configurações locais
+local.properties
+
+# Arquivos nativos gerados
+.externalNativeBuild/
+.cxx/
+captures/
+
+# Segredos e credenciais
+.env
+.env.*
+!.env.example
+secrets.properties
+**/secrets.properties
+*.jks
+*.keystore
