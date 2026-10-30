@@ -8,9 +8,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.reencontro.model.ObjetoPerdido
 import com.reencontro.ui.screens.CadastroScreen
 import com.reencontro.ui.screens.HomeScreen
 import com.reencontro.ui.screens.LoginScreen
@@ -22,16 +24,24 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
+
                 var telaAtual by remember {
                     mutableStateOf("login")
                 }
 
-                // O botão de voltar retorna à tela de login.
+                val objetos = remember {
+                    mutableStateListOf<ObjetoPerdido>()
+                }
+
                 BackHandler(enabled = telaAtual != "login") {
-                    telaAtual = "login"
+                    telaAtual = when (telaAtual) {
+                        "cadastro" -> "login"
+                        else -> "home"
+                    }
                 }
 
                 when (telaAtual) {
+
                     "login" -> LoginScreen(
                         aoCadastrar = {
                             telaAtual = "cadastro"
@@ -73,7 +83,12 @@ class MainActivity : ComponentActivity() {
                         }
                     )
 
-                    "home" -> HomeScreen()
+                    "home" -> HomeScreen(
+                        objetos = objetos,
+                        onCadastrarObjeto = { novoObjeto ->
+                            objetos.add(novoObjeto)
+                        }
+                    )
                 }
             }
         }

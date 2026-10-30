@@ -37,6 +37,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.activity.compose.BackHandler
+import com.reencontro.model.ObjetoPerdido
+
 
 private val FundoHome = Color(0xFFE8F2E8)
 private val VerdeEscuro = Color(0xFF245C42)
@@ -49,10 +52,16 @@ private data class ItemNavegacao(
 )
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    objetos: List<ObjetoPerdido>,
+    onCadastrarObjeto: (ObjetoPerdido) -> Unit
+) {
 
     var paginaSelecionada by remember {
         mutableStateOf("Home")
+    }
+    BackHandler(enabled = paginaSelecionada != "Home") {
+        paginaSelecionada = "Home"
     }
 
     val paginas = listOf(
@@ -139,7 +148,7 @@ fun HomeScreen() {
                     ) {
                         Button(
                             onClick = {
-                                // A busca será implementada depois.
+                                paginaSelecionada = "Buscar"
                             },
                             modifier = Modifier
                                 .weight(1f)
@@ -187,7 +196,17 @@ fun HomeScreen() {
             }
 
             "Publicar" -> {
-                PublicarScreen()
+                PublicarScreen(
+                    onCadastrarObjeto = onCadastrarObjeto
+                )
+            }
+            "Buscar" -> {
+                BuscaScreen(
+                    objetos = objetos,
+                    modifier = Modifier.padding(
+                        bottom = paddingValues.calculateBottomPadding()
+                    )
+                )
             }
 
             else -> {
