@@ -208,7 +208,11 @@ fun HomeScreen(
                     )
                 )
             }
-
+            "Perfil" -> {
+                PerfilScreen(
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
             else -> {
                 Box(
                     modifier = Modifier
