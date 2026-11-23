@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "217913309701",
+    "project_id": "reencontro-a7aac",
+    "storage_bucket": "reencontro-a7aac.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217913309701:android:8338b05bf16957d835ba6c",
+        "android_client_info": {
+          "package_name": "com.reencontro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzc9F4NW-m6oiJnAGLU_ghbsFXWNG57bg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

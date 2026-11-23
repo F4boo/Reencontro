@@ -1,4 +1,5 @@
 
+
 package com.reencontro.ui.screens
 
 import android.app.DatePickerDialog
@@ -51,7 +52,10 @@ private val categorias = listOf(
 
 @Composable
 fun PublicarScreen(
-    onCadastrarObjeto: (ObjetoPerdido) -> Unit
+    onCadastrarObjeto: (
+        ObjetoPerdido,
+        (Boolean, String?) -> Unit
+    ) -> Unit
 ) {
     val contexto = LocalContext.current
 
@@ -62,6 +66,7 @@ fun PublicarScreen(
     var categoriaAberta by remember { mutableStateOf(false) }
     var opcoesImagemAbertas by remember { mutableStateOf(false) }
     var imagemSelecionada by remember { mutableStateOf<Bitmap?>(null) }
+    var salvando by remember { mutableStateOf(false) }
 
     val calendario = Calendar.getInstance()
 
@@ -105,7 +110,6 @@ fun PublicarScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Espaço extra no topo para descer os campos.
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
@@ -325,6 +329,7 @@ fun PublicarScreen(
                         dataEncontro = ""
                         imagemSelecionada = null
                     },
+                    enabled = !salvando,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = VerdeCampo,
                         contentColor = VerdeEscuro
@@ -350,7 +355,6 @@ fun PublicarScreen(
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
-
                             val novoObjeto = ObjetoPerdido(
                                 nome = nomeObjeto.trim(),
                                 categoria = categoriaSelecionada,
@@ -358,21 +362,34 @@ fun PublicarScreen(
                                 data = dataEncontro
                             )
 
-                            onCadastrarObjeto(novoObjeto)
+                            salvando = true
 
-                            Toast.makeText(
-                                contexto,
-                                "Objeto cadastrado com sucesso!",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            onCadastrarObjeto(novoObjeto) { sucesso, mensagem ->
+                                salvando = false
 
-                            nomeObjeto = ""
-                            categoriaSelecionada = ""
-                            lugarEncontrado = ""
-                            dataEncontro = ""
-                            imagemSelecionada = null
+                                if (sucesso) {
+                                    Toast.makeText(
+                                        contexto,
+                                        "Objeto cadastrado com sucesso!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    nomeObjeto = ""
+                                    categoriaSelecionada = ""
+                                    lugarEncontrado = ""
+                                    dataEncontro = ""
+                                    imagemSelecionada = null
+                                } else {
+                                    Toast.makeText(
+                                        contexto,
+                                        mensagem ?: "Erro ao cadastrar objeto.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
                         }
                     },
+                    enabled = !salvando,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = VerdeCampo,
                         contentColor = VerdeEscuro
@@ -382,7 +399,8 @@ fun PublicarScreen(
                     modifier = Modifier.weight(1.3f)
                 ) {
                     Text(
-                        "Cadastrar objeto perdido",
+                        if (salvando) "Salvando..."
+                        else "Cadastrar objeto perdido",
                         fontSize = 11.sp,
                         textAlign = TextAlign.Center,
                         lineHeight = 14.sp

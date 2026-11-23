@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.activity.compose.BackHandler
 import com.reencontro.model.ObjetoPerdido
 
-
 private val FundoHome = Color(0xFFE8F2E8)
 private val VerdeEscuro = Color(0xFF245C42)
 private val VerdeCampo = Color(0xFFC6DFC9)
@@ -54,12 +53,16 @@ private data class ItemNavegacao(
 @Composable
 fun HomeScreen(
     objetos: List<ObjetoPerdido>,
-    onCadastrarObjeto: (ObjetoPerdido) -> Unit
+    onCadastrarObjeto: (
+        ObjetoPerdido,
+        (Boolean, String?) -> Unit
+    ) -> Unit
 ) {
 
     var paginaSelecionada by remember {
         mutableStateOf("Home")
     }
+
     BackHandler(enabled = paginaSelecionada != "Home") {
         paginaSelecionada = "Home"
     }
@@ -200,6 +203,7 @@ fun HomeScreen(
                     onCadastrarObjeto = onCadastrarObjeto
                 )
             }
+
             "Buscar" -> {
                 BuscaScreen(
                     objetos = objetos,
@@ -208,11 +212,13 @@ fun HomeScreen(
                     )
                 )
             }
+
             "Perfil" -> {
                 PerfilScreen(
                     modifier = Modifier.padding(paddingValues)
                 )
             }
+
             else -> {
                 Box(
                     modifier = Modifier
