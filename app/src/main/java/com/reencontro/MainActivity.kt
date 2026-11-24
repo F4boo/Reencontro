@@ -45,8 +45,7 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf<List<ObjetoPerdido>>(emptyList())
                 }
 
-                // Observa os objetos no Firestore enquanto o usuário
-                // estiver na área principal do aplicativo.
+                // Observa os objetos enquanto a Home está aberta.
                 DisposableEffect(telaAtual) {
 
                     val listener = if (telaAtual == "home") {
@@ -71,6 +70,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                // Controla o botão voltar do Android.
                 BackHandler(enabled = telaAtual != "login") {
                     telaAtual = when (telaAtual) {
                         "cadastro" -> "login"
@@ -84,26 +84,21 @@ class MainActivity : ComponentActivity() {
                         aoCadastrar = {
                             telaAtual = "cadastro"
                         },
-
                         aoEntrar = { email, senha ->
 
                             if (email.isBlank() || senha.isBlank()) {
-
                                 Toast.makeText(
                                     this@MainActivity,
                                     "Preencha o e-mail e a senha",
                                     Toast.LENGTH_SHORT
                                 ).show()
-
                             } else {
-
                                 auth.signInWithEmailAndPassword(
                                     email.trim(),
                                     senha
                                 ).addOnCompleteListener { tarefa ->
 
                                     if (tarefa.isSuccessful) {
-
                                         Toast.makeText(
                                             this@MainActivity,
                                             "Login realizado com sucesso!",
@@ -113,7 +108,6 @@ class MainActivity : ComponentActivity() {
                                         telaAtual = "home"
 
                                     } else {
-
                                         Toast.makeText(
                                             this@MainActivity,
                                             tarefa.exception?.localizedMessage
@@ -134,7 +128,6 @@ class MainActivity : ComponentActivity() {
                                 email.isBlank() ||
                                 senha.isBlank()
                             ) {
-
                                 Toast.makeText(
                                     this@MainActivity,
                                     "Preencha todos os campos",
@@ -142,7 +135,6 @@ class MainActivity : ComponentActivity() {
                                 ).show()
 
                             } else if (senha.length < 6) {
-
                                 Toast.makeText(
                                     this@MainActivity,
                                     "A senha deve ter pelo menos 6 caracteres",
@@ -150,12 +142,8 @@ class MainActivity : ComponentActivity() {
                                 ).show()
 
                             } else {
-
                                 val emailFormatado = email.trim()
                                 val nomeFormatado = nome.trim()
-
-                                // Permite tentar novamente salvar o perfil
-                                // caso a conta já tenha sido criada.
                                 val usuarioAtual = auth.currentUser
 
                                 if (usuarioAtual?.email == emailFormatado) {
@@ -181,7 +169,6 @@ class MainActivity : ComponentActivity() {
                                             val uid = auth.currentUser?.uid
 
                                             if (uid != null) {
-
                                                 salvarUsuario(
                                                     uid = uid,
                                                     nome = nomeFormatado,
@@ -190,9 +177,7 @@ class MainActivity : ComponentActivity() {
                                                         telaAtual = "home"
                                                     }
                                                 )
-
                                             } else {
-
                                                 Toast.makeText(
                                                     this@MainActivity,
                                                     "Conta criada, mas não foi possível identificar o usuário.",
@@ -201,7 +186,6 @@ class MainActivity : ComponentActivity() {
                                             }
 
                                         } else {
-
                                             Toast.makeText(
                                                 this@MainActivity,
                                                 tarefa.exception?.localizedMessage
@@ -219,9 +203,37 @@ class MainActivity : ComponentActivity() {
                         objetos = objetos,
 
                         onCadastrarObjeto = { novoObjeto, aoConcluir ->
-
                             objetoRepository.salvarObjeto(
                                 objeto = novoObjeto,
+                                aoConcluir = aoConcluir
+                            )
+                        },
+
+                        // E-mail do usuário autenticado.
+                        emailUsuario = auth.currentUser?.email ?: "",
+
+                        // ID do usuário autenticado.
+                        usuarioId = auth.currentUser?.uid ?: "",
+
+                        // Busca o telefone no Firestore.
+                        buscarTelefone = { aoConcluir ->
+                            objetoRepository.buscarTelefoneUsuario(
+                                aoConcluir
+                            )
+                        },
+
+                        // Salva o telefone no Firestore.
+                        salvarTelefone = { telefone, aoConcluir ->
+                            objetoRepository.salvarTelefoneUsuario(
+                                telefone = telefone,
+                                aoConcluir = aoConcluir
+                            )
+                        },
+
+                        // Exclui um anúncio.
+                        excluirObjeto = { objetoId, aoConcluir ->
+                            objetoRepository.excluirObjeto(
+                                objetoId = objetoId,
                                 aoConcluir = aoConcluir
                             )
                         }
@@ -231,13 +243,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Salva os dados do usuário no Firestore.
     private fun salvarUsuario(
         uid: String,
         nome: String,
         email: String,
         aoConcluir: () -> Unit
     ) {
-
         val dadosUsuario = hashMapOf(
             "nome" to nome,
             "email" to email,
@@ -268,4 +280,3 @@ class MainActivity : ComponentActivity() {
             }
     }
 }
-

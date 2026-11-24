@@ -56,15 +56,31 @@ fun HomeScreen(
     onCadastrarObjeto: (
         ObjetoPerdido,
         (Boolean, String?) -> Unit
-    ) -> Unit
+    ) -> Unit,
+    emailUsuario: String,
+    usuarioId: String,
+    buscarTelefone: ((String?, String?) -> Unit) -> Unit,
+    salvarTelefone: (String, (Boolean, String?) -> Unit) -> Unit,
+    excluirObjeto: (String, (Boolean, String?) -> Unit) -> Unit
 ) {
 
     var paginaSelecionada by remember {
         mutableStateOf("Home")
     }
 
-    BackHandler(enabled = paginaSelecionada != "Home") {
-        paginaSelecionada = "Home"
+    var objetoSelecionado by remember {
+        mutableStateOf<ObjetoPerdido?>(null)
+    }
+
+    BackHandler(
+        enabled = objetoSelecionado != null ||
+                paginaSelecionada != "Home"
+    ) {
+        if (objetoSelecionado != null) {
+            objetoSelecionado = null
+        } else {
+            paginaSelecionada = "Home"
+        }
     }
 
     val paginas = listOf(
@@ -82,10 +98,12 @@ fun HomeScreen(
                 containerColor = FundoCard
             ) {
                 paginas.forEach { pagina ->
+
                     NavigationBarItem(
                         selected = paginaSelecionada == pagina.nome,
                         onClick = {
                             paginaSelecionada = pagina.nome
+                            objetoSelecionado = null
                         },
                         icon = {
                             Icon(
@@ -108,131 +126,153 @@ fun HomeScreen(
         }
     ) { paddingValues ->
 
-        when (paginaSelecionada) {
+        if (objetoSelecionado != null) {
 
-            "Home" -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(FundoHome)
-                        .padding(paddingValues)
-                        .padding(horizontal = 4.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Spacer(modifier = Modifier.weight(0.8f))
+            DetalhesObjetoScreen(
+                objeto = objetoSelecionado!!,
+                onVoltar = {
+                    objetoSelecionado = null
+                },
+                modifier = Modifier.padding(paddingValues)
+            )
 
-                    // Espaço reservado para o mapa.
+        } else {
+
+            when (paginaSelecionada) {
+
+                "Home" -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(FundoHome)
+                            .padding(paddingValues)
+                            .padding(horizontal = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                        Spacer(modifier = Modifier.weight(0.8f))
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(2.8f)
+                                .background(
+                                    color = VerdeCampo,
+                                    shape = RoundedCornerShape(20.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "MAPA",
+                                color = VerdeEscuro,
+                                fontSize = 14.sp
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(40.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Button(
+                                onClick = {
+                                    paginaSelecionada = "Buscar"
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(54.dp),
+                                shape = RoundedCornerShape(20.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = VerdeCampo,
+                                    contentColor = VerdeEscuro
+                                )
+                            ) {
+                                Text(
+                                    text = "Perdeu algo?",
+                                    fontSize = 12.sp,
+                                    maxLines = 1
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(0.dp))
+
+                            Box(modifier = Modifier.weight(0.55f))
+
+                            Button(
+                                onClick = {
+                                    paginaSelecionada = "Publicar"
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(54.dp),
+                                shape = RoundedCornerShape(20.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = VerdeCampo,
+                                    contentColor = VerdeEscuro
+                                )
+                            ) {
+                                Text(
+                                    text = "Achou algo?",
+                                    fontSize = 12.sp,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.weight(1.1f))
+                    }
+                }
+
+                "Publicar" -> {
+                    PublicarScreen(
+                        onCadastrarObjeto = onCadastrarObjeto
+                    )
+                }
+
+                "Buscar" -> {
+                    BuscaScreen(
+                        objetos = objetos,
+                        onObjetoSelecionado = { objeto ->
+                            objetoSelecionado = objeto
+                        },
+                        modifier = Modifier.padding(
+                            bottom = paddingValues.calculateBottomPadding()
+                        )
+                    )
+                }
+
+                "Perfil" -> {
+                    PerfilScreen(
+                        modifier = Modifier.padding(paddingValues),
+                        email = emailUsuario,
+                        usuarioId = usuarioId,
+                        objetos = objetos,
+                        buscarTelefone = buscarTelefone,
+                        salvarTelefone = salvarTelefone,
+                        excluirObjeto = excluirObjeto
+                    )
+                }
+
+                else -> {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(2.8f)
-                            .background(
-                                color = VerdeCampo,
-                                shape = RoundedCornerShape(20.dp)
-                            ),
+                            .fillMaxSize()
+                            .background(FundoHome)
+                            .padding(paddingValues),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "MAPA",
+                            text = paginaSelecionada,
                             color = VerdeEscuro,
-                            fontSize = 14.sp
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(40.dp))
-
-                    // Botões de itens perdidos e encontrados.
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(
-                            onClick = {
-                                paginaSelecionada = "Buscar"
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(54.dp),
-                            shape = RoundedCornerShape(20.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = VerdeCampo,
-                                contentColor = VerdeEscuro
-                            )
-                        ) {
-                            Text(
-                                text = "Perdeu algo?",
-                                fontSize = 12.sp,
-                                maxLines = 1
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(0.dp))
-
-                        Box(modifier = Modifier.weight(0.55f))
-
-                        Button(
-                            onClick = {
-                                paginaSelecionada = "Publicar"
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(54.dp),
-                            shape = RoundedCornerShape(20.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = VerdeCampo,
-                                contentColor = VerdeEscuro
-                            )
-                        ) {
-                            Text(
-                                text = "Achou algo?",
-                                fontSize = 12.sp,
-                                maxLines = 1
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.weight(1.1f))
-                }
-            }
-
-            "Publicar" -> {
-                PublicarScreen(
-                    onCadastrarObjeto = onCadastrarObjeto
-                )
-            }
-
-            "Buscar" -> {
-                BuscaScreen(
-                    objetos = objetos,
-                    modifier = Modifier.padding(
-                        bottom = paddingValues.calculateBottomPadding()
-                    )
-                )
-            }
-
-            "Perfil" -> {
-                PerfilScreen(
-                    modifier = Modifier.padding(paddingValues)
-                )
-            }
-
-            else -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(FundoHome)
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = paginaSelecionada,
-                        color = VerdeEscuro,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold
-                    )
                 }
             }
         }

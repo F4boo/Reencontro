@@ -2,6 +2,7 @@
 package com.reencontro.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,25 +13,28 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reencontro.model.ObjetoPerdido
-import com.reencontro.ui.theme.FundoCard
-import com.reencontro.ui.theme.FundoReencontro
-import com.reencontro.ui.theme.VerdeCampo
-import com.reencontro.ui.theme.VerdeEscuro
-import com.reencontro.ui.theme.VerdeTexto
+import com.reencontro.ui.theme.*
 
 @Composable
 fun BuscaScreen(
     objetos: List<ObjetoPerdido>,
+    onObjetoSelecionado: (ObjetoPerdido) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    var pesquisa by remember { mutableStateOf("") }
+    var pesquisa by remember {
+        mutableStateOf("")
+    }
 
     val objetosFiltrados = objetos.filter { objeto ->
-        objeto.categoria.contains(pesquisa.trim(), ignoreCase = true)
+        objeto.categoria.contains(
+            pesquisa.trim(),
+            ignoreCase = true
+        )
     }
 
     Column(
@@ -93,7 +97,7 @@ fun BuscaScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 12.dp),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -101,8 +105,7 @@ fun BuscaScreen(
             if (objetosFiltrados.isEmpty()) {
 
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -122,6 +125,7 @@ fun BuscaScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
+
                     items(objetosFiltrados) { objeto ->
 
                         Column(
@@ -131,8 +135,12 @@ fun BuscaScreen(
                                     FundoCard,
                                     RoundedCornerShape(16.dp)
                                 )
+                                .clickable {
+                                    onObjetoSelecionado(objeto)
+                                }
                                 .padding(16.dp)
                         ) {
+
                             Text(
                                 text = objeto.nome,
                                 color = VerdeEscuro,
@@ -160,3 +168,5 @@ fun BuscaScreen(
         }
     }
 }
+
+
