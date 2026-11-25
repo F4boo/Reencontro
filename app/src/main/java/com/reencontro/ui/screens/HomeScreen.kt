@@ -1,6 +1,6 @@
-
 package com.reencontro.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,13 +32,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.activity.compose.BackHandler
 import com.reencontro.model.ObjetoPerdido
+import com.reencontro.ui.components.MapaReencontro
 
 private val FundoHome = Color(0xFFE8F2E8)
 private val VerdeEscuro = Color(0xFF245C42)
@@ -141,6 +142,7 @@ fun HomeScreen(
             when (paginaSelecionada) {
 
                 "Home" -> {
+
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -150,26 +152,25 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
-                        Spacer(modifier = Modifier.weight(0.8f))
+                        Spacer(
+                            modifier = Modifier.weight(0.8f)
+                        )
 
+                        // MAPA DO GOOGLE
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(2.8f)
-                                .background(
-                                    color = VerdeCampo,
-                                    shape = RoundedCornerShape(20.dp)
-                                ),
-                            contentAlignment = Alignment.Center
+                                .clip(RoundedCornerShape(20.dp))
                         ) {
-                            Text(
-                                text = "MAPA",
-                                color = VerdeEscuro,
-                                fontSize = 14.sp
+                            MapaReencontro(
+                                modifier = Modifier.fillMaxSize()
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(
+                            modifier = Modifier.height(40.dp)
+                        )
 
                         Row(
                             modifier = Modifier
@@ -199,9 +200,13 @@ fun HomeScreen(
                                 )
                             }
 
-                            Spacer(modifier = Modifier.height(0.dp))
+                            Spacer(
+                                modifier = Modifier.height(0.dp)
+                            )
 
-                            Box(modifier = Modifier.weight(0.55f))
+                            Box(
+                                modifier = Modifier.weight(0.55f)
+                            )
 
                             Button(
                                 onClick = {
@@ -224,7 +229,9 @@ fun HomeScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.weight(1.1f))
+                        Spacer(
+                            modifier = Modifier.weight(1.1f)
+                        )
                     }
                 }
 
